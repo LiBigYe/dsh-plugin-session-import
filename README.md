@@ -37,7 +37,7 @@ dsh web
 - 点击侧边栏底部的 **「⇩ 导入会话」** → 选择工具 → 搜索 / 滚动分批加载 → 勾选 → 导入
 - 或命令行：`/import codex C:\Users\xxx\.codex\sessions`（目录=批量）
 <img width="420" height="1361" alt="image" src="https://github.com/user-attachments/assets/b2bb60eb-dd12-4cdd-ba67-87c64895002a" />
-![Uploading image.png…]()
+<img width="446" height="570" alt="4be6a594554770b422a58c1d1d821555" src="https://github.com/user-attachments/assets/bc387080-6a2d-4807-bea7-6c21e2b87141" />
 
 ## 会话数据位置
 
