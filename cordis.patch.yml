@@ -1,0 +1,4 @@
+# dsh-plugin-session-import bundle patch：挂载插件自身
+- insert:
+    - id: session-import
+      name: 'dsh-plugin-session-import'

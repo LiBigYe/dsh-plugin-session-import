@@ -1,0 +1,14 @@
+# 本地坑文档（不提交）
+NOTES-TROUBLESHOOTING.md
+
+# 构建产物与依赖
+node_modules/
+*.tgz
+
+# 临时文件
+tmp_*
+*.tmp
+
+# 系统
+.DS_Store
+Thumbs.db
