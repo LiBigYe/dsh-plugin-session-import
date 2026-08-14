@@ -80,6 +80,7 @@ function extractToolArguments(p) {
     // JS 对象字面量 → JSON：键名加引号、反引号/单引号转双引号、去尾逗号
     const jsonText = objText
       .replace(/`/g, '"')
+      .replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"')
       .replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":')
       .replace(/,\s*}/g, '}')
     const parsed = JSON.parse(jsonText)
