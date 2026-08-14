@@ -12,3 +12,4 @@ tmp_*
 # 系统
 .DS_Store
 Thumbs.db
+.npmrc
