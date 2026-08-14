@@ -90,6 +90,7 @@ dsh web
 
 ```bash
 npm run build      # esbuild 构建 lib/index.js + lib/client.js
+node test-events.mjs # toSessionEvents 单元测试 21 项（工具配对/孤儿丢弃等）
 npm pack           # 打包验证
 ```
 
