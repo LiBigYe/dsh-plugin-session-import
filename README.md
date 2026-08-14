@@ -90,7 +90,10 @@ dsh web
 
 ```bash
 npm run build      # esbuild 构建 lib/index.js + lib/client.js
-node test-events.mjs # toSessionEvents 单元测试 21 项（工具配对/孤儿丢弃等）
+node test-events.mjs   # toSessionEvents 单元测试 21 项（工具配对/孤儿丢弃等）
+node test-codex.mjs    # codex 解析器 7 项（exec_command 参数转 JSON）
+node test-reasonix.mjs # reasonix 解析器 5 项
+node test-slug.mjs     # slug 路径解码 4 项
 npm pack           # 打包验证
 ```
 
