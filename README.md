@@ -1,5 +1,10 @@
 # dsh-plugin-session-import
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
+> 已收录于 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) 精选列表（Sessions & Messages）· [AdamPlatin123 自动雷达](https://github.com/AdamPlatin123/awesome-dsh-plugins)（✅ 运行级验证通过）
+
+
 DeepSeek Harness（dsh）插件：把 **claude-code / codex / reasonix / zcode** 的历史聊天记录导入为 dsh 会话（含工作区绑定与工具能力），导入后可直接续聊。
 
 ## 功能
