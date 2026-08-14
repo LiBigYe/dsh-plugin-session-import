@@ -125,7 +125,7 @@ function extractTitle(path) {
  *  3. 合并后续段（最多 3 段）
  * 返回规范化的绝对路径，或 undefined。
  */
-function decodeSlugPath(slug) {
+export function decodeSlugPath(slug) {
   try {
     const bs = '\\'
     let rest = slug
@@ -151,7 +151,7 @@ function decodeSlugPath(slug) {
         if (existsSync(path + merged)) { path += merged + bs; i = j + 1; found = true; break }
         j++
       }
-      if (!found) { path += merged + bs; i++ }
+      if (!found) return undefined // 段在文件系统不存在 → 解码失败，不拼垃圾路径
     }
     return path.replace(/[\\/]+$/, '') || undefined
   } catch { return undefined }
