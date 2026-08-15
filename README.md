@@ -75,7 +75,7 @@ dsh web
 |---|---|
 | 工具调用链 | seed 中 assistant/message 承载 tool-call 块，tool/result 紧跟对应调用（含孤儿 result 丢弃、迟到 result 配对），满足 OpenAI/DeepSeek wire 规则 |
 | zcode 压缩 | 识别 compaction 标记，摘要正文（summary.body）原样还原为上下文 |
-| codex 参数 | `custom_tool_call` 的 JS 代码参数（`tools.exec_command({...})`）自动转成标准 JSON，避免模型学到错误调用格式 |
+| codex 参数 | `custom_tool_call` 的 JS 代码参数（`tools.exec_command({cmd: 'dir'})` 单引号/反引号）自动转成标准 JSON，避免模型学到错误调用格式 |
 | 超长截断 | 文本 ≤16K 字符、工具结果 ≤40K 字符裁剪；消息按预算截断（保留开头锚点 + 压缩摘要 + 尾部）；单条超预算一半直接丢弃 |
 | 预算自适应 | 按默认模型真实窗口（contextWindow − maxTokens − 25% 余量）动态计算，`DSH_IMPORT_CONTEXT_BUDGET` 可覆盖 |
 | cwd 修复 | claude 中文路径（`.claude.json` 权威映射）、reasonix slug 贪心解码——避免 workspace=主目录导致沙箱拒绝 |
