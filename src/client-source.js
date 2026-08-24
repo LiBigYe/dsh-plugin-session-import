@@ -81,6 +81,9 @@ const React = require("react");
       const [offset, setOffset] = useState(0);
       const [hasMore, setHasMore] = useState(true);
       const [query, setQuery] = useState("");
+      //「对话模式」= 导入会话挂载的 agent preset（缺省用 dsh 默认）
+      const [modes, setModes] = useState(null);
+      const [mode, setMode] = useState("");
 
       const BATCH = 10
       const loadSessions = useCallback(async (t, startOffset, q) => {
@@ -125,6 +128,27 @@ const React = require("react");
         return () => clearTimeout(timer);
       }, [query, tool, loadSessions]);
 
+      // 拉取可用「对话模式」(agent presets)，默认选 dsh 配置的默认 preset
+      useEffect(() => {
+        let alive = true;
+        (async () => {
+          try {
+            const resp = await fetch("/api-import/presets", {
+              method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+            });
+            const data = await resp.json();
+            if (!alive || !data.ok) return;
+            const list = data.presets ?? [];
+            setModes(list);
+            if (list.length > 0) {
+              const def = list.find((p) => p.default) ?? list[0];
+              setMode(def.id);
+            }
+          } catch (e) { /* 忽略：无模式可选时保持默认 */ }
+        })();
+        return () => { alive = false; };
+      }, []);
+
       // 自动补载：列表不满容器时继续加载下一批
       const listRef = React.useRef(null)
       useEffect(() => {
@@ -154,7 +178,7 @@ const React = require("react");
         try {
           const resp = await fetch("/api-import/batch", {
             method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tool, paths }),
+            body: JSON.stringify({ tool, paths, preset: mode }),
           });
           const data = await resp.json();
           if (data.ok && data.failed.length === 0) {
@@ -185,6 +209,14 @@ const React = require("react");
           React.createElement("span", { style: style.label }, "工具"),
           React.createElement("select", { style: style.input, value: tool, onChange: (e) => setTool(e.target.value) },
             TOOLS.map((t) => React.createElement("option", { key: t, value: t }, t)))),
+
+        React.createElement("div", { style: style.row },
+          React.createElement("span", { style: style.label }, "模式"),
+          React.createElement("select", { style: style.input, value: mode, onChange: (e) => setMode(e.target.value) },
+            (modes ?? []).length === 0
+              ? React.createElement("option", { key: "__default", value: "" }, "默认")
+              : (modes ?? []).map((p) => React.createElement("option", { key: p.id, value: p.id },
+                  p.name + (p.default ? " (默认)" : ""))))),
 
         React.createElement("div", { style: { position: "relative", marginTop: "2px" } },
           React.createElement("input", {

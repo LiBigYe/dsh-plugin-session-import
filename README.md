@@ -17,7 +17,7 @@ DeepSeek Harness（dsh）插件：把 **claude-code / codex / reasonix / zcode**
 - **会话发现**：标题 / 项目名 / 消息数 / 时间齐全，30s 缓存扫描
 - **搜索**：按标题 / 项目名过滤（防抖输入）
 - **批量导入**：多选会话一次导入，每个会话独立 seed + 工作区绑定
-- **工具完整可用**：导入会话自动加入默认 preset scope，25+ 工具（read/edit/glob/grep/pwsh 等）与正常会话一致
+- **对话模式可选**：导入时可选择 agent preset（标准/PTC/极简/创造/Anchored/Router Spec/Router Standard），会话以所选模式挂载 25+ 工具（read/edit/glob/grep/pwsh 等）与正常会话一致
 - **超长会话保护**：三层保障（内容裁剪 → 消息截断 → 单条兜底），任何长度 / 任何模型窗口都不超限
 - **Web UI**：侧边栏「⇩ 导入会话」按钮（明暗主题自适应），导入成功自动关闭
 - **命令**：`/import <tool> <path>`（文件或目录批量）
@@ -54,6 +54,7 @@ dsh web
 ## 使用
 
 - 点击侧边栏底部的 **「⇩ 导入会话」** → 选择工具 → 搜索 / 滚动分批加载 → 勾选 → 导入
+- **对话模式**：导入对话框支持下拉选择「模式」——即会话运行的 agent preset（默认「标准模式」standard），导入会话会记录该 preset 并按其挂载工具集。
 - 或命令行：`/import codex C:\Users\xxx\.codex\sessions`（目录=批量）
 - <img width="426" height="1361" alt="image" src="https://github.com/user-attachments/assets/ae266fb9-4b93-4327-a232-9b98f8257d88" />
   <img width="891" height="1139" alt="image" src="https://github.com/user-attachments/assets/fc29bbd1-9e79-4cf7-b806-78852d0e5ad0" />

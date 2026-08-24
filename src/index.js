@@ -494,7 +494,7 @@ function trimOversized(messages, budget = CONTEXT_BUDGET) {
   return { messages: result, trimmed: messages.length - result.length }
 }
 
-async function importOne(ctx, tool, path, agentOptions, hintCwd) {
+async function importOne(ctx, tool, path, agentOptions, hintCwd, preset) {
   const parse = PARSERS[tool]
   if (!parse) throw new Error('未知工具: ' + tool)
   const { messages: rawMessages, cwd: parsedCwd } = parse(path)
@@ -533,18 +533,19 @@ async function importOne(ctx, tool, path, agentOptions, hintCwd) {
     meta: {
       cwd: sessionCwd,
       seedLength: events.length,
+      ...(preset ? { agentPreset: preset } : {}),
     },
     seed: events,
     agentOptions: {
       ...(agentOptions ?? {}),
       ...(modelBudget ? { provider: modelBudget.provider, model: modelBudget.model } : {}),
     },
-    // setup 钩子：把 agent 加入默认 preset 的 scope——否则 preset 注册的工具
+    // setup 钩子：把 agent 加入所选 preset 的 scope——否则 preset 注册的工具
     //（read/edit/glob/grep 等全部工具）对导入会话不可见，模型收到 0 工具，
-    // 只能输出 XML 文本而不是标准 JSON tool_calls
+    // 只能输出 XML 文本而不是标准 JSON tool_calls。preset 缺省时用默认 preset。
     setup: (agentCtx) => {
       if (ctx.agentPresets?.mount) {
-        return ctx.agentPresets.mount(agentCtx).then(() => {})
+        return ctx.agentPresets.mount(agentCtx, preset).then(() => {})
       }
       return undefined
     },
@@ -587,6 +588,29 @@ export function apply(ctx) {
 
   ctx.webServer.register({
     kind: 'exact',
+    path: '/api-import/presets',
+    handler: async (req, res) => {
+      try {
+        let rows = []
+        try { rows = (await ctx.agentPresets?.list?.()) ?? [] } catch (e) { rows = [] }
+        let defaultId = ''
+        try { defaultId = ctx.agentPresets?.defaultId ?? '' } catch (e) { defaultId = '' }
+        const presets = rows.map((p) => ({
+          id: p.id,
+          name: p.name ?? p.id,
+          description: p.description ?? '',
+          default: p.id === defaultId,
+        }))
+        res.writeHead(200, { 'content-type': 'application/json' })
+        res.end(JSON.stringify({ ok: true, presets, default: defaultId }))
+      } catch (e) {
+        res.writeHead(500, { 'content-type': 'application/json' })
+        res.end(JSON.stringify({ ok: false, error: e.message }))
+      }
+    },
+  })
+  ctx.webServer.register({
+    kind: 'exact',
     path: '/api-import/list',
     handler: async (req, res) => {
       try {
@@ -608,7 +632,7 @@ export function apply(ctx) {
     handler: async (req, res) => {
       try {
         const body = await readBody(req)
-        const { tool, paths } = body ?? {}
+        const { tool, paths, preset } = body ?? {}
         if (!tool || !Array.isArray(paths) || paths.length === 0) {
           res.writeHead(400, { 'content-type': 'application/json' })
           res.end(JSON.stringify({ ok: false, error: '缺少 tool 或 paths' }))
@@ -621,7 +645,7 @@ export function apply(ctx) {
         const cwdHint = new Map(cached.filter((s) => s.cwd).map((s) => [s.path, s.cwd]))
         for (const path of paths) {
           try {
-            const r = await importOne(ctx, tool, path, {}, cwdHint.get(path))
+            const r = await importOne(ctx, tool, path, {}, cwdHint.get(path), preset)
             imported.push({ path, sessionId: r.sessionId, messages: r.messages.length, events: r.events.length, cwd: r.cwd, trimmed: r.trimmed })
           } catch (e) {
             failed.push({ path, error: e.message })
@@ -641,13 +665,13 @@ export function apply(ctx) {
     handler: async (req, res) => {
       try {
         const body = await readBody(req)
-        const { tool, path } = body ?? {}
+        const { tool, path, preset } = body ?? {}
         if (!tool || !path) {
           res.writeHead(400, { 'content-type': 'application/json' })
           res.end(JSON.stringify({ ok: false, error: '缺少 tool 或 path' }))
           return
         }
-        const r = await importOne(ctx, tool, path, {})
+        const r = await importOne(ctx, tool, path, {}, undefined, preset)
         res.writeHead(200, { 'content-type': 'application/json' })
         res.end(JSON.stringify({ ok: true, sessionId: r.sessionId, messages: r.messages.length, events: r.events.length, cwd: r.cwd }))
       } catch (e) {
